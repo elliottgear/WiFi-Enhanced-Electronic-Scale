@@ -8,7 +8,7 @@
  ***************************/
 
  /*****
-  * Base code for Sprint #2 of Fall 2020
+  * Moving average code for Sprint #2 of Fall 2020
   *****/
 
 // Import libraries
@@ -55,7 +55,7 @@ void setup() {
 
 
 void loop() {
-  float weight = scale.get_units();
+  float weight = getAverages();
   //print to console
   Serial.print("Reading: ");
   Serial.print(weight, 1); //scale.get_units() returns a float
@@ -63,9 +63,33 @@ void loop() {
   Serial.println();
 
   // print to screen
-  tft.fillScreen(ST77XX_BLACK);
   tft.setCursor(0,0);
   tft.print(weight, 6);
 
   delay(1000);
+}
+
+// super janky implimentation of moving (lol not actually) average. i miss C++ :(
+long getAverages(){
+
+  //WRITE HOW MANY YOU ARE DOING HERE SO IT IS NOT HARDCODED GRRRR
+  int howMany = 20; 
+  
+  // 20 seems kinda good but idk
+  long weights[howMany];
+
+  // add 20 weights into the array
+  for(int i = 0; i < howMany; i++){
+    weights[i] = scale.get_units();
+  }
+
+  // find the average, i hate arrays
+  long sum, average;
+  for(int i = 0; i < howMany; 1++){
+    sum = sum + weights[i];
+  }
+  
+  average = sum/howMany;
+  return average;
+  
 }
