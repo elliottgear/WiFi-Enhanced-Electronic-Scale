@@ -85,7 +85,7 @@ long getAverages(){
 
   // find the average, i hate arrays
   long sum, average;
-  for(int i = 0; i < howMany; 1++){
+  for(int i = 0; i < howMany; i++){
     sum = sum + weights[i];
   }
   
