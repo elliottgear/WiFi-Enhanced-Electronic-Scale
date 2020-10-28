@@ -86,7 +86,7 @@ void setup() {
   tft.fillScreen(ST77XX_BLACK);
 
   // Adjusts screen display 
-  tft.setRotation(1);  // Rotate values 90 deg into landscape
+  tft.setRotation(3);  // Rotate values 90 deg into landscape
   tft.setTextWrap(false);  // Remove text wrapping
 
 
@@ -95,36 +95,58 @@ void setup() {
 
 
 void loop() {
-  // read the scanner
-  int reading = getFingerprintIDez();
-  Serial.print(reading);
-  if(reading == 1){
-    tft.fillScreen(ST77XX_BLACK);
-    tft.setCursor(0,20);  // Display name value in center of the screen
-    tft.setTextSize(2);  // Set name value to max font size
-    tft.println("Hello,");  // Display name value to 0.01
-    tft.setCursor(20,60); // Display units at bottom of screen
-    tft.setTextSize(3);  // Set units to medium font size
-    tft.print("Elliott");  // Display name
+  // read the scanner for 10 seconds
+  for (int i = 0; i < 10; i++){
+    int reading = getFingerprintIDez();
+    Serial.print(reading);
+    if(reading == 1){
+      tft.fillScreen(ST77XX_BLACK);
+      tft.setCursor(0,20);  // Display name value in center of the screen
+      tft.setTextSize(2);  // Set name value to max font size
+      tft.println("Hello,");  // Display name value to 0.01
+      tft.setCursor(20,60); // Display units at bottom of screen
+      tft.setTextSize(3);  // Set units to medium font size
+      tft.print("Callan");  // Display name
+      delay(1000);
+
+      break; // break from for loop iff the person is identified
+    }
+
+    else if(reading != 1){
+      tft.fillScreen(ST77XX_BLACK);
+      tft.setCursor(0,20);  // Display name value in center of the screen
+      tft.setTextSize(2);  // Set name value to max font size
+      tft.println("Hello!");  // Display name value to 0.01
+      tft.setCursor(20,60); // Display units at bottom of screen
+      tft.setTextSize(2);  // Set units to medium font size
+      tft.print("Please scan finger");  // Display name
+    }
+    delay(1000);
   }
   
-//  float weight = scale.get_units();
-//  //print to console
-//  Serial.print("Reading: ");
-//  Serial.print(weight, 1); //scale.get_units() returns a float
-//  Serial.print(" lbs"); //You can change this to kg but you'll need to refactor the calibration_factor
-//  Serial.println();
-//
-//  // print to screen
-//  tft.fillScreen(ST77XX_BLACK);
-//  tft.setCursor(0,40);  // Display weight value in center of the screen
-//  tft.setTextSize(5);  // Set weight value to max font size
-//  tft.print(weight, 2);  // Display weight value to 0.01
-//  tft.setCursor(65,100); // Display units at bottom of screen
-//  tft.setTextSize(3);  // Set units to medium font size
-//  tft.print("lb");  // Display units
-//
-//  delay(1000);
+  // display the weight for 5 seconds
+  for (int i = 0; i < 10; i++){
+    float weight = scale.get_units();
+    //print to console
+    Serial.print("Reading: ");
+    Serial.print(weight, 1); //scale.get_units() returns a float
+    Serial.print(" lbs"); //You can change this to kg but you'll need to refactor the calibration_factor
+    Serial.println();
+  
+    // print to screen
+    tft.fillScreen(ST77XX_BLACK);
+    tft.setCursor(0,40);  // Display weight value in center of the screen
+    tft.setTextSize(5);  // Set weight value to max font size
+    tft.print(weight, 1);  // Display weight value to 0.1
+    tft.setCursor(65,100); // Display units at bottom of screen
+    tft.setTextSize(3);  // Set units to medium font size
+    tft.print("lb");  // Display units
+  
+    delay(1000);
+  }
+
+  
+
 }
 
 
