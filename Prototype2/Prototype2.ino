@@ -7,6 +7,12 @@
  * MIT license, all text above must be included in any redistribution
  ***************************/
 
+/***************************
+ * Modified by Connor Harrigan 
+ * Connor.Harrigan@uvm.edu
+ * October 27th, 2020
+ **************************/
+ 
  /*****
   * Base code for Sprint #2 of Fall 2020
   *****/
@@ -50,6 +56,12 @@ void setup() {
   // fills screen black
   tft.initR(INITR_BLACKTAB);
   tft.fillScreen(ST77XX_BLACK);
+
+  // Adjusts screen display 
+  tft.setRotation(1);  // Rotate values 90 deg into landscape
+  tft.setTextWrap(false);  // Remove text wrapping
+
+
   
 }
 
@@ -64,8 +76,12 @@ void loop() {
 
   // print to screen
   tft.fillScreen(ST77XX_BLACK);
-  tft.setCursor(0,0);
-  tft.print(weight, 6);
+  tft.setCursor(0,40);  // Display weight value in center of the screen
+  tft.setTextSize(5);  // Set weight value to max font size
+  tft.print(weight, 2);  // Display weight value to 0.01
+  tft.setCursor(65,100); // Display units at bottom of screen
+  tft.setTextSize(3);  // Set units to medium font size
+  tft.print("lb");  // Display units
 
   delay(1000);
 }
