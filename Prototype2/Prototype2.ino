@@ -23,6 +23,7 @@
 #include <Adafruit_ST7735.h> // Hardware-specific library for ST7735
 #include <Adafruit_ST7789.h> // Hardware-specific library for ST7789
 #include <SPI.h>
+#include <Adafruit_Fingerprint.h>
 
 // Set with Connor on 10/26/2020
 #define calibration_factor -10730.00
@@ -36,21 +37,48 @@
 #define TFT_RST        9 
 #define TFT_DC         8
 
+// setup scanner
+#if (defined(__AVR__) || defined(ESP8266)) && !defined(__AVR_ATmega2560__)
+SoftwareSerial mySerial(4, 5);
+#else
+#define mySerial Serial1
+#endif
+
+
+/*****
+ * INITIALIZATION OF ALL SENSORS
+ *****/
 // Create the scale
 HX711 scale;
 
 // create the screen
 Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
 
+// create the reader
+Adafruit_Fingerprint finger = Adafruit_Fingerprint(&mySerial);
+
 
 void setup() {
   Serial.begin(9600);
   Serial.println("Prototype 2 scale demo");
 
+  // get the scale ready to go with a tare and set the 
   scale.begin(LOADCELL_DOUT_PIN, LOADCELL_SCK_PIN);
   scale.set_scale(calibration_factor); //This value is obtained by using the SparkFun_HX711_Calibration sketch
   scale.tare(); //Assuming there is no weight on the scale at start up, reset the scale to 0
 
+  // initialize finger print reader
+  finger.begin(57600);
+  delay(5);
+  if (finger.verifyPassword()) {
+    Serial.println("Found fingerprint sensor!");
+  } 
+  else {
+    Serial.println("Did not find fingerprint sensor :(");
+  while (1) { delay(1); }
+  }
+
+  
   Serial.println("Readings:");
 
   // fills screen black
@@ -67,21 +95,51 @@ void setup() {
 
 
 void loop() {
-  float weight = scale.get_units();
-  //print to console
-  Serial.print("Reading: ");
-  Serial.print(weight, 1); //scale.get_units() returns a float
-  Serial.print(" lbs"); //You can change this to kg but you'll need to refactor the calibration_factor
-  Serial.println();
+  // read the scanner
+  int reading = getFingerprintIDez();
+  Serial.print(reading);
+  if(reading == 1){
+    tft.fillScreen(ST77XX_BLACK);
+    tft.setCursor(0,20);  // Display name value in center of the screen
+    tft.setTextSize(2);  // Set name value to max font size
+    tft.println("Hello,");  // Display name value to 0.01
+    tft.setCursor(20,60); // Display units at bottom of screen
+    tft.setTextSize(3);  // Set units to medium font size
+    tft.print("Elliott");  // Display name
+  }
+  
+//  float weight = scale.get_units();
+//  //print to console
+//  Serial.print("Reading: ");
+//  Serial.print(weight, 1); //scale.get_units() returns a float
+//  Serial.print(" lbs"); //You can change this to kg but you'll need to refactor the calibration_factor
+//  Serial.println();
+//
+//  // print to screen
+//  tft.fillScreen(ST77XX_BLACK);
+//  tft.setCursor(0,40);  // Display weight value in center of the screen
+//  tft.setTextSize(5);  // Set weight value to max font size
+//  tft.print(weight, 2);  // Display weight value to 0.01
+//  tft.setCursor(65,100); // Display units at bottom of screen
+//  tft.setTextSize(3);  // Set units to medium font size
+//  tft.print("lb");  // Display units
+//
+//  delay(1000);
+}
 
-  // print to screen
-  tft.fillScreen(ST77XX_BLACK);
-  tft.setCursor(0,40);  // Display weight value in center of the screen
-  tft.setTextSize(5);  // Set weight value to max font size
-  tft.print(weight, 2);  // Display weight value to 0.01
-  tft.setCursor(65,100); // Display units at bottom of screen
-  tft.setTextSize(3);  // Set units to medium font size
-  tft.print("lb");  // Display units
 
-  delay(1000);
+int getFingerprintIDez() {
+  uint8_t p = finger.getImage();
+  if (p != FINGERPRINT_OK)  return -1;
+
+  p = finger.image2Tz();
+  if (p != FINGERPRINT_OK)  return -1;
+
+  p = finger.fingerFastSearch();
+  if (p != FINGERPRINT_OK)  return -1;
+
+  // found a match!
+  Serial.print("Found ID #"); Serial.print(finger.fingerID);
+  Serial.print(" with confidence of "); Serial.println(finger.confidence);
+  return finger.fingerID;
 }
